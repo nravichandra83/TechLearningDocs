@@ -1,0 +1,165 @@
+<style>
+  .cb-wrap { padding: 1rem 0; font-family: var(--font-sans); }
+  .state-bar { display: flex; gap: 12px; margin-bottom: 20px; }
+  .state-pill { flex: 1; padding: 10px 8px; border-radius: var(--border-radius-lg); text-align: center; border: 1.5px solid transparent; transition: all .3s; cursor: default; }
+  .state-pill .pill-label { font-size: 13px; font-weight: 500; }
+  .state-pill .pill-sub { font-size: 11px; margin-top: 3px; }
+  .state-pill.active-closed { background: #E1F5EE; border-color: #0F6E56; }
+  .state-pill.active-closed .pill-label { color: #085041; }
+  .state-pill.active-closed .pill-sub { color: #0F6E56; }
+  .state-pill.active-open { background: #FCEBEB; border-color: #A32D2D; }
+  .state-pill.active-open .pill-label { color: #501313; }
+  .state-pill.active-open .pill-sub { color: #A32D2D; }
+  .state-pill.active-half { background: #FAEEDA; border-color: #854F0B; }
+  .state-pill.active-half .pill-label { color: #412402; }
+  .state-pill.active-half .pill-sub { color: #854F0B; }
+  .state-pill.inactive { background: var(--color-background-secondary); border-color: var(--color-border-tertiary); }
+  .state-pill.inactive .pill-label { color: var(--color-text-secondary); }
+  .state-pill.inactive .pill-sub { color: var(--color-text-tertiary); }
+  .cb-panel { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 16px 20px; margin-bottom: 16px; border: 1px solid var(--color-border-tertiary); }
+  .cb-desc { font-size: 14px; color: var(--color-text-primary); line-height: 1.6; min-height: 56px; }
+  .stats-row { display: flex; gap: 20px; margin: 14px 0 0; flex-wrap: wrap; }
+  .stat { text-align: center; }
+  .stat-val { font-size: 22px; font-weight: 500; color: var(--color-text-primary); }
+  .stat-lbl { font-size: 11px; color: var(--color-text-tertiary); margin-top: 2px; }
+  .stat-val.red { color: #A32D2D; }
+  .stat-val.green { color: #085041; }
+  .stat-val.amber { color: #633806; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn { padding: 9px 18px; border-radius: var(--border-radius-md); border: 1px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); font-size: 13px; cursor: pointer; transition: opacity .15s; font-family: var(--font-sans); }
+  .btn:hover { opacity: .75; }
+  .btn.danger { background: #FCEBEB; border-color: #A32D2D; color: #501313; }
+  .btn.success { background: #E1F5EE; border-color: #0F6E56; color: #085041; }
+  .btn.warn { background: #FAEEDA; border-color: #854F0B; color: #412402; }
+  .log { font-size: 12px; color: var(--color-text-secondary); font-family: var(--font-mono); max-height: 120px; overflow-y: auto; line-height: 1.8; margin-top: 12px; }
+  .log-entry { border-bottom: 1px solid var(--color-border-tertiary); padding: 1px 0; }
+  .log-ok { color: #085041; }
+  .log-fail { color: #A32D2D; }
+  .log-info { color: #633806; }
+  .threshold-row { display: flex; gap: 16px; align-items: center; font-size: 13px; color: var(--color-text-secondary); margin-bottom: 14px; flex-wrap: wrap; }
+  .threshold-row label { display: flex; align-items: center; gap: 6px; }
+  .threshold-row input[type=range] { width: 80px; }
+</style>
+<div class="cb-wrap">
+  <div class="state-bar">
+    <div class="state-pill active-closed" id="pill-closed">
+      <div class="pill-label">Closed</div>
+      <div class="pill-sub">Requests flow</div>
+    </div>
+    <div class="state-pill inactive" id="pill-open">
+      <div class="pill-label">Open</div>
+      <div class="pill-sub">Fail fast</div>
+    </div>
+    <div class="state-pill inactive" id="pill-half">
+      <div class="pill-label">Half-open</div>
+      <div class="pill-sub">Probing</div>
+    </div>
+  </div>
+
+  <div class="cb-panel">
+    <div class="cb-desc" id="desc">Circuit is closed. All requests pass through to the downstream service normally. Failures are being counted.</div>
+    <div class="stats-row">
+      <div class="stat"><div class="stat-val green" id="s-ok">0</div><div class="stat-lbl">successes</div></div>
+      <div class="stat"><div class="stat-val red" id="s-fail">0</div><div class="stat-lbl">failures</div></div>
+      <div class="stat"><div class="stat-val" id="s-total">0</div><div class="stat-lbl">total calls</div></div>
+      <div class="stat"><div class="stat-val amber" id="s-timer">—</div><div class="stat-lbl">reset timer</div></div>
+    </div>
+  </div>
+
+  <div class="threshold-row">
+    <label>Failure threshold: <input type="range" id="thresh" min="2" max="8" value="3"> <span id="thresh-val">3</span> failures</label>
+    <label>Reset timeout: <input type="range" id="timeout" min="3" max="10" value="5"> <span id="timeout-val">5</span>s</label>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn success" onclick="doCall(true)">Successful call</button>
+    <button class="btn danger" onclick="doCall(false)">Failed call</button>
+    <button class="btn warn" onclick="reset()">Reset breaker</button>
+  </div>
+
+  <div class="log" id="log"></div>
+</div>
+
+<script>
+  let state = 'closed', failures = 0, successes = 0, total = 0, timer = null, countdown = 0, cd = null;
+  const descs = {
+    closed: 'Circuit is closed. All requests pass through to the downstream service normally. Failures are being counted.',
+    open: 'Circuit tripped open after too many failures. Requests are rejected immediately (fail fast) — no calls reach the downstream service. Waiting for reset timeout.',
+    half: 'Reset timeout expired. Circuit is half-open: letting one probe request through to test if the service has recovered.'
+  };
+
+  function pill(id, cls) {
+    ['pill-closed','pill-open','pill-half'].forEach(p => {
+      const el = document.getElementById(p);
+      el.className = 'state-pill ' + (p === id ? cls : 'inactive');
+    });
+  }
+  function setState(s) {
+    state = s;
+    document.getElementById('desc').textContent = descs[s];
+    if (s === 'closed') pill('pill-closed','active-closed');
+    else if (s === 'open') pill('pill-open','active-open');
+    else pill('pill-half','active-half');
+  }
+  function log(msg, cls) {
+    const d = document.getElementById('log');
+    const t = new Date().toLocaleTimeString('en', {hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    d.innerHTML = `<div class="log-entry ${cls}">${t}  ${msg}</div>` + d.innerHTML;
+  }
+  function updateStats() {
+    document.getElementById('s-ok').textContent = successes;
+    document.getElementById('s-fail').textContent = failures;
+    document.getElementById('s-total').textContent = total;
+  }
+  function startTimer() {
+    const secs = parseInt(document.getElementById('timeout').value);
+    countdown = secs;
+    document.getElementById('s-timer').textContent = countdown + 's';
+    if (cd) clearInterval(cd);
+    cd = setInterval(() => {
+      countdown--;
+      document.getElementById('s-timer').textContent = countdown + 's';
+      if (countdown <= 0) {
+        clearInterval(cd);
+        document.getElementById('s-timer').textContent = '—';
+        setState('half');
+        log('Reset timeout expired → moving to half-open, probing...', 'log-info');
+      }
+    }, 1000);
+  }
+  function doCall(success) {
+    const thresh = parseInt(document.getElementById('thresh').value);
+    if (state === 'open') { log('BLOCKED — circuit open, request rejected without calling service', 'log-fail'); return; }
+    total++;
+    if (success) {
+      successes++;
+      updateStats();
+      if (state === 'half') { failures = 0; setState('closed'); log('Probe succeeded → circuit closed', 'log-ok'); }
+      else log('Call succeeded', 'log-ok');
+    } else {
+      failures++;
+      updateStats();
+      if (state === 'half') {
+        setState('open');
+        log('Probe failed → circuit remains open, restarting timer', 'log-fail');
+        startTimer();
+      } else if (failures >= thresh) {
+        setState('open');
+        log(`Failure threshold (${thresh}) reached → circuit tripped OPEN`, 'log-fail');
+        startTimer();
+      } else {
+        log(`Call failed (${failures}/${thresh} threshold)`, 'log-fail');
+      }
+    }
+  }
+  function reset() {
+    state='closed'; failures=0; successes=0; total=0;
+    if(cd) clearInterval(cd);
+    document.getElementById('s-timer').textContent='—';
+    updateStats(); setState('closed');
+    document.getElementById('log').innerHTML='';
+    log('Breaker manually reset','log-info');
+  }
+  document.getElementById('thresh').oninput = e => document.getElementById('thresh-val').textContent = e.target.value;
+  document.getElementById('timeout').oninput = e => document.getElementById('timeout-val').textContent = e.target.value;
+</script>

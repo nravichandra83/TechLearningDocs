@@ -1,0 +1,49 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36" version="29.6.6">
+  <diagram name="Page-1" id="rfH9fzLrV1N9cy35A6eX">
+    <mxGraphModel dx="1426" dy="777" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="MPZ337KmLJkoT-i_WTD--1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="user" vertex="1">
+          <mxGeometry height="50" width="100" x="90" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="MPZ337KmLJkoT-i_WTD--2" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;" value="Redis" vertex="1">
+          <mxGeometry height="80" width="60" x="660" y="25" as="geometry" />
+        </mxCell>
+        <mxCell id="MPZ337KmLJkoT-i_WTD--4" parent="1" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" value="API Gate way" vertex="1">
+          <mxGeometry height="60" width="120" x="440" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="MPZ337KmLJkoT-i_WTD--5" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Auth service&amp;nbsp;" vertex="1">
+          <mxGeometry height="50" width="100" x="160" y="190" as="geometry" />
+        </mxCell>
+        <mxCell id="MPZ337KmLJkoT-i_WTD--6" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Post Service" vertex="1">
+          <mxGeometry height="50" width="100" x="380" y="190" as="geometry" />
+        </mxCell>
+        <mxCell id="MPZ337KmLJkoT-i_WTD--7" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;" value="DB" vertex="1">
+          <mxGeometry height="80" width="60" x="400" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="MPZ337KmLJkoT-i_WTD--8" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Load Balancer" vertex="1">
+          <mxGeometry height="60" width="120" x="270" y="35" as="geometry" />
+        </mxCell>
+        <mxCell id="MPZ337KmLJkoT-i_WTD--9" edge="1" parent="1" source="MPZ337KmLJkoT-i_WTD--4" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.75;entryY=0;entryDx=0;entryDy=0;" target="MPZ337KmLJkoT-i_WTD--6" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="380" y="250" as="sourcePoint" />
+            <mxPoint x="430" y="200" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="MPZ337KmLJkoT-i_WTD--10" edge="1" parent="1" source="MPZ337KmLJkoT-i_WTD--4" style="endArrow=classic;html=1;rounded=0;exitX=0.094;exitY=1.056;exitDx=0;exitDy=0;exitPerimeter=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="315" y="105" as="sourcePoint" />
+            <mxPoint x="260" y="190" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="MPZ337KmLJkoT-i_WTD--13" edge="1" parent="1" source="MPZ337KmLJkoT-i_WTD--1" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=-0.056;entryY=0.617;entryDx=0;entryDy=0;entryPerimeter=0;" target="MPZ337KmLJkoT-i_WTD--8" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="380" y="250" as="sourcePoint" />
+            <mxPoint x="430" y="200" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
