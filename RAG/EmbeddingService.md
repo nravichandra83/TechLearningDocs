@@ -121,14 +121,7 @@ If embedding is a separate service, you can scale it independently.
 
 For example:
 
-|
-Component
-
-|
-
-Instances
-
-|
+|Component|Instances|
 | --- | --- |
 |Ingestion workers|5|
 |Embedding workers/service replicas|15|
