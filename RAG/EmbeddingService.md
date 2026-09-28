@@ -130,33 +130,9 @@ Instances
 
 |
 | --- | --- |
-|
-
-Ingestion workers
-
-|
-
-5
-
-|
-|
-
-Embedding workers/service replicas
-
-|
-
-15
-
-|
-|
-
-Query API
-
-|
-
-8
-
-|
+|Ingestion workers|5|
+|Embedding workers/service replicas|15|
+|Query API|8|
 
 These are illustrative numbers, not sizing recommendations.
 
