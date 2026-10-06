@@ -110,6 +110,17 @@ Trade-off:
 
 The ideal size is task-dependent, not universal.
 
+
+Large chunking consumes more tokens primarily because larger segments pack more words, sentences, and structural elements into each individual block sent to the embedding model or the language model.  
+Here is how large chunking increases token consumption across a RAG pipeline:  
+1. Higher Processing Volume per Chunk   
+• More text per vector: When you increase chunk size (e.g., from 128 tokens to 1,024+ tokens), every single segment processed contains a much higher density of words and sub-word tokens.  
+• Embedding costs: Generating vector embeddings requires passing the entire text of the chunk through an embedding model. Larger chunks mean more tokens processed per API call or embedding pass, scaling up compute and costs.   
+2. Amplified Context Window Stuffing  
+• More baggage in retrieval (K chunks): In a typical RAG setup, your retrieval system fetches the top K most relevant chunks (e.g., top 4 or top 5 chunks) to inject into the LLM prompt.  
+• Compound inflation: If your system retrieves 4 chunks, and each chunk is 1,500 tokens instead of 300 tokens, your total context payload jumps from 1,200 tokens to 6,000 tokens per user query.   
+• Wasted overhead: Large chunks often drag in irrelevant background information, paragraphs, or side-topics adjacent to your answer. You pay for the tokens of this extra "noise" even though the LLM only needed a single sentence from that block. 
+
 ## 5. What are the different chunking strategies?
 
 Answer: I choose chunking strategies based on the structure and semantics of the source documents.
