@@ -27,6 +27,16 @@ Evaluation metrics:
 
 I create a representative question-answer dataset with expected relevant document chunks, evaluate retrieval independently, and tune the pipeline against these metrics.
 
+Definitions in RAG
+• Precision: The percentage of retrieved chunks that are actually relevant to the user's query. High precision means low noise.
+• Recall: The percentage of all known relevant information in your data source that the system successfully retrieved. High recall means high completeness.
+The Trade-Off
+• High Recall, Low Precision: Pulling too many documents floods the context window with useless data. This causes "context dilution," higher costs, latency, and model hallucinations.
+• High Precision, Low Recall: Being too strict limits the context to a few chunks. This saves space but misses crucial facts needed to answer the user's question.
+How to Fix Issues
+• Fixing Low Recall: Use hybrid retrieval (combining keyword and vector search) or rewrite queries to catch missed terms.
+• Fixing Low Precision: Set strict context limits, use post-filtering, or add a reranker to sort the best results to the top.
+
 Key point: A vector database returning results does not guarantee relevant retrieval. Retrieval quality must be measured against a ground-truth evaluation dataset.
 
 ## 2. When do you choose RAG vs. fine-tuning?
